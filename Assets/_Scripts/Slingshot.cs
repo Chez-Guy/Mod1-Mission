@@ -4,6 +4,12 @@ using UnityEngine;
 
 public class Slingshot : MonoBehaviour{
 
+   AudioSource audioSource;
+   public AudioClip drawback;
+   public AudioClip fire; 
+   ScoreManager scoreManager;
+   SlingshotBand band;
+
     [Header("Inscribed")]
     public GameObject projectilePrefab;
     public float velocityMult = 10f;
@@ -16,6 +22,10 @@ public class Slingshot : MonoBehaviour{
     public bool aimingMode;
 
     void Awake(){
+      band = GameObject.Find("Bands").GetComponent<SlingshotBand>();
+      scoreManager = GameObject.Find("GameController").GetComponent<ScoreManager>();
+      audioSource = GetComponent<AudioSource>();
+      audioSource.clip = drawback;
         Transform launchPointTrans = transform.Find("LaunchPoint");
         launchPoint = launchPointTrans.gameObject;
         launchPoint.SetActive(false);
@@ -41,6 +51,11 @@ public class Slingshot : MonoBehaviour{
     projectile.transform.position = launchPos;
 
     projectile.GetComponent<Rigidbody>().isKinematic = true;
+
+   audioSource.Stop();
+   audioSource.clip = drawback;
+   audioSource.Play();
+   band.ToggleLine(projectile.transform, true);
  }
  void Update(){
 
@@ -62,7 +77,11 @@ public class Slingshot : MonoBehaviour{
     projectile.transform.position = projPos;
 
     if(Input.GetMouseButtonUp(0)){
-
+      audioSource.Stop();
+      audioSource.clip = fire;
+      audioSource.Play();
+      band.ToggleLine();
+      scoreManager.AddScore(1);
         aimingMode = false;
         Rigidbody projRB = projectile.GetComponent<Rigidbody>();
         projRB.isKinematic = false;
